@@ -8,7 +8,10 @@ from src.camera import SecurityCamera
 from src.notifier import EmailNotifier
 from src import config
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 def clean_folder():
@@ -21,12 +24,12 @@ def clean_folder():
 
 def main():
     logger.info("Starting security camera system...")
+    logger.info("System will start monitoring after 30 minutes of inactivity")
     
     # Initialize camera and notifier
     camera = SecurityCamera()
     notifier = EmailNotifier()
     count = 1
-    status_list = []
     
     try:
         while True:
@@ -36,39 +39,42 @@ def main():
                 logger.error("Failed to read frame from camera")
                 break
                 
-            processed_frame, motion_detected, debug_frame = camera.process_frame(frame)
+            processed_frame, motion_detected, debug_frame, should_capture = camera.process_frame(frame)
             
-            # Update status list
-            status_list.append(1 if motion_detected else 0)
-            status_list = status_list[-2:]  # Keep only last 2 states
-            
-            # Handle motion detection
-            if motion_detected:
+            # Handle motion detection and capture
+            if should_capture:
                 image_path = f"{config.IMAGES_DIR}/{count}.png"
                 cv2.imwrite(image_path, processed_frame)
                 count += 1
                 
-                # Send email notification when motion stops
-                if len(status_list) >= 2 and status_list[0] == 1 and status_list[1] == 0:
-                    all_images = glob.glob(f"{config.IMAGES_DIR}/*.png")
-                    if all_images:
-                        index = int(len(all_images) / 2)
-                        image_with_object = all_images[index]
-                        
-                        # Start notification and cleanup threads
-                        email_thread = Thread(target=notifier.send_notification, args=(image_with_object,))
-                        clean_thread = Thread(target=clean_folder)
-                        
-                        email_thread.start()
-                        clean_thread.start()
+                # Send notification
+                try:
+                    notifier.send_notification(image_path)
+                    # Start cleanup thread
+                    clean_thread = Thread(target=clean_folder)
+                    clean_thread.daemon = True
+                    clean_thread.start()
+                except Exception as e:
+                    logger.error(f"Failed to send notification: {str(e)}")
             
             # Display frames
+            status_text = "MONITORING" if camera.monitoring_active else "WAITING FOR INACTIVITY"
+            cv2.putText(
+                processed_frame,
+                status_text,
+                (10, 30),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (0, 255, 0) if camera.monitoring_active else (0, 0, 255),
+                2
+            )
+            
             cv2.imshow("Security Feed", processed_frame)
             if debug_frame is not None:
                 cv2.imshow("Motion Detection", debug_frame)
             
             # Check for quit command
-            if cv2.waitKey(1) & 0xFF == ord('q'):
+            if cv2.waitKey(config.MOTION_CHECK_INTERVAL) & 0xFF == ord('q'):
                 logger.info("Quit command received")
                 break
                 

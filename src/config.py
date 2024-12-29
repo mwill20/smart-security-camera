@@ -18,6 +18,8 @@ FRAME_HEIGHT = 480
 MOTION_THRESHOLD = 60
 MIN_CONTOUR_AREA = 3000
 GAUSSIAN_BLUR_SIZE = (21, 21)
+INACTIVITY_TIMEOUT = 1800  # 30 minutes in seconds
+MOTION_CHECK_INTERVAL = 1  # Check for motion every 1 second
 
 # Image Storage Configuration
 IMAGES_DIR = "images"
