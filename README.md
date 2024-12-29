@@ -1,20 +1,27 @@
 # Smart Security Camera
 
-A Python-based smart security camera system that uses computer vision for motion detection and sends email notifications with captured images.
+A Python-based smart security camera system with advanced features including face detection, web interface, and configurable monitoring schedules.
 
 ## Features
 
 - Real-time motion detection using OpenCV
-- Email notifications with captured images
+- Face detection using Haar Cascades
+- Web interface for live monitoring and configuration
+- Configurable monitoring schedules (day/night settings)
+- Enhanced notifications:
+  - Email notifications with timestamped images
+  - SMS notifications via Twilio (optional)
+  - Multiple images per detection event
+- Motion tracking with direction detection
+- Multi-threaded design for optimal performance
 - Automatic image cleanup
-- Multi-threaded design for better performance
-- Configurable sensitivity and email settings
 
 ## Requirements
 
 - Python 3.8+
 - Webcam
-- Gmail account for notifications
+- Gmail account for email notifications
+- Twilio account for SMS notifications (optional)
 
 ## Installation
 
@@ -29,37 +36,62 @@ cd smart-security-camera
 pip install -r requirements.txt
 ```
 
-3. Create a `.env` file with your email settings:
+3. Create a `.env` file with your settings:
 ```env
+# Email Settings
 EMAIL_SENDER=your-email@gmail.com
 EMAIL_PASSWORD=your-app-password
 EMAIL_RECEIVER=receiver-email@gmail.com
+
+# Twilio Settings (Optional)
+TWILIO_ACCOUNT_SID=your-account-sid
+TWILIO_AUTH_TOKEN=your-auth-token
+TWILIO_PHONE_FROM=your-twilio-number
+TWILIO_PHONE_TO=your-phone-number
 ```
 
 ## Usage
 
-Run the main script:
+1. Run the main script:
 ```bash
 python main.py
 ```
 
-- Press 'q' to quit the application
-- Motion detection will automatically start when the program runs
-- Email notifications will be sent when motion is detected
+2. Access the web interface:
+- Open http://localhost:5000 in your browser
+- View live camera feed
+- Configure monitoring hours
+- Adjust motion sensitivity for day/night
+
+3. Features:
+- Motion detection starts automatically after 1 minute of inactivity
+- Face detection highlights detected faces in blue rectangles
+- Motion tracking shows movement direction
+- Status display shows current monitoring state
+- Timestamp overlay on video feed
 
 ## Configuration
 
-You can adjust the following parameters in `config.py`:
-- Motion detection sensitivity
-- Minimum object size
-- Email notification settings
-- Image cleanup settings
+### Web Interface Settings
+- Monitoring Hours: Set active monitoring periods
+- Motion Sensitivity: Adjust separately for day and night
+- Face Detection: Toggle on/off
+- SMS Notifications: Enable/disable (requires Twilio)
 
-## Security Note
+### Advanced Configuration (`config.py`)
+- Frame dimensions and FPS
+- Motion detection parameters
+- Face detection settings
+- Web interface host/port
+- Notification settings
+- Image cleanup parameters
 
-- Never commit your email credentials to version control
-- Use environment variables or a `.env` file for sensitive data
-- Generate an App Password for Gmail instead of using your account password
+## Security Notes
+
+- Never commit sensitive credentials to version control
+- Use environment variables or `.env` file for credentials
+- Generate an App Password for Gmail instead of using account password
+- Web interface runs on localhost by default for security
 
 ## Contributing
 
@@ -72,3 +104,13 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Author
 
 Michael Williams - [GitHub Profile](https://github.com/mwill20)
+
+## Recent Updates
+
+### Version 2.0 (December 2023)
+- Added face detection capability
+- Implemented web interface for remote monitoring
+- Added configurable monitoring schedules
+- Enhanced notifications with SMS support
+- Improved motion tracking with direction detection
+- Added timestamp overlay to video feed
