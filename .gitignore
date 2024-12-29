@@ -1,2 +1,19 @@
-venv
-.idea
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+
+# Project specific
+images/*.png
+*.log
+array.txt
